@@ -22,19 +22,19 @@ void output(char *name, WINDOW*win){
 }
 
 char *redactor(char *name){
-  int i;
-  for(i=0; i<13; i++){
+  int i=0;
+  while(name[i+1]!='\n'){
    name[i]=name[i+1];
+   i++;
   }
+  i++;
+ name[i]='\0';
  return name;
 }
 void navigation(WINDOW *subwnd,WINDOW *subwnd2){
    char c; int i=0, j=0, log=0, n;
    WINDOW *win=subwnd;
-   char im[14];
-   for(n=0; n<14; n++){
-    im[i]='\0';
-   }
+   char im[255];
    wmove(win,i,j);
    mvwinstr(win,i,j, im);
    if(im[0]=='_'){
@@ -43,10 +43,7 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
    }
    c=wgetch(win);
    while(c!='q'){
-      char name[14];
-     for(n=0; n<14; n++){
-      name[i]='\0';
-     }
+      char name[255];
       c=wgetch(win);
       if(c=='w'){
          wmove(win,--i,j);
@@ -65,23 +62,23 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
          wmove(win,i,j);
       }
       mvwinstr(win,i,j,name);
-       if(name[0]=='_'){
-         redactor(name);
-      /* if(log==1)
-           output(name, subwnd2);
-        else
-           output(name, subwnd);*/
+      if(name[0]=='_'){
+        redactor(name);
+        if(log==1)
+             output(name, subwnd2);
+         else
+             output(name, subwnd);
       }
-      wprintw(subwnd2, name);
-      wrefresh(subwnd2);
+       wprintw(subwnd2, name);
+       wrefresh(subwnd2);
    }
 }
 
 int main(){
   int i,j;
-  char name[14];
+  char name[255];
   name[0]='.';
- // name[1]='.';
+//  name[1]='.';
   name[1]='\0';
   WINDOW *wnd, *wnd2, *win;
   WINDOW *subwnd,*subwnd2;
