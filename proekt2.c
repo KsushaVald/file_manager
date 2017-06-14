@@ -15,19 +15,19 @@ void output(char *name, WINDOW*win){
       if(rez->d_type==DT_DIR)
         wprintw(win,"_");
         wprintw(win,rez->d_name);
-        wprintw(win, "\0");
+        wprintw(win,"/");
         wprintw(win,"\n");
    }
    wrefresh(win);
    closedir(dp);
 }
 
-int summa(char* name){
- int sch=0, i=0;
- while(name[i]!='\0'){
-  sch++;
+int summa(char *dir){
+ int  i=0;
+  while(dir[i]!='/'){
+  i++;
  }
- return sch;
+ return i;
 }
 
 char redactor(char *name, int n){
@@ -38,16 +38,22 @@ char redactor(char *name, int n){
   name[n-1]='\0';
   return *name;
 }
+
 void navigation(WINDOW *subwnd,WINDOW *subwnd2){
    char c; int i=0, j=0, log=0, n;
    WINDOW *win=subwnd;
-   char im[18];
+   char im[18]; char *name1;
    wmove(win,i,j);
    mvwinstr(win,i,j, im);
-    /* if(im[0]=='_'){
-     redactor(im);
-     output(im, win);
-   }*/
+   n=summa(im);
+   name1=im;
+   if(im[0]=='_'){
+     redactor(im, n);
+   if(log==0)
+     output(im, subwnd2);
+   else
+     output(im, subwnd);
+   }
    c=wgetch(win);
    while(c!='q'){
       char dir[18];
@@ -65,22 +71,21 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
       }
       if(c=='a'){
          win=subwnd;
-         i=0; j=0; log=1;
+         i=0; j=0; log=0;
          wmove(win,i,j);
       }
      mvwinstr(win,i,j,dir);
      char *name;
      n=summa(dir);
      name=malloc(sizeof(char)*n);
+     name=dir;
      if(name[0]=='_'){
          redactor(name, n);
-      /*if(log==1)
+      if(log==0)
              output(name, subwnd2);
       else
-             output(name, subwnd);*/
+             output(name, subwnd);
       }
-      wprintw(subwnd2, name);
-      wrefresh(subwnd2);
    }
 }
 
