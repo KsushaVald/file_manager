@@ -45,10 +45,11 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
    char im[18]; char *name1;
    wmove(win,i,j);
    mvwinstr(win,i,j, im);
-   n=summa(im);
-   name1=im;
    if(im[0]=='_'){
-     redactor(im, n);
+      n=summa(im);
+      name1=malloc(sizeof(char)*n);
+      name1=im;
+      redactor(im, n);
    if(log==0)
      output(im, subwnd2);
    else
@@ -75,13 +76,13 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
          wmove(win,i,j);
       }
      mvwinstr(win,i,j,dir);
-     char *name;
-     n=summa(dir);
-     name=malloc(sizeof(char)*n);
-     name=dir;
-     if(name[0]=='_'){
-         redactor(name, n);
-      if(log==0)
+     if(dir[0]=='_'){
+          char *name;
+          n=summa(dir);
+          name=malloc(sizeof(char)*n);
+          name=dir;
+          redactor(name, n);
+     if(log==0)
              output(name, subwnd2);
       else
              output(name, subwnd);
@@ -93,7 +94,7 @@ int main(){
   int i,j;
   char name[18];
   name[0]='.';
- // name[1]='.';
+//  name[1]='.';
   name[1]='\0';
   WINDOW *wnd, *wnd2, *win;
   WINDOW *subwnd,*subwnd2;
