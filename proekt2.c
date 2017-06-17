@@ -7,7 +7,7 @@
 #include <curses.h>
 #include <fcntl.h>
 #include <string.h>
-
+#include <malloc.h>
 /*void openfile(char *name, WINDOW*neww){
  int fd; char c;
  fd=open(name,O_RDONLY);
@@ -70,10 +70,11 @@ char redactor(char *name, int n){
 void navigation(WINDOW *subwnd,WINDOW *subwnd2){
    char c; int i=0, j=0, log=0, n;
    WINDOW *win=subwnd;
-   char dir[18]; char *name; char *parent;
+   char dir[18]; char *name; char *parent; char *dir_name;
    parent=malloc(sizeof(char)*2);
    parent[0]='.';
    parent[1]='\0';
+   chdir(parent);
    wmove(win,i,j);
    mvwinstr(win,i,j, dir);
    n=summa(dir);
@@ -81,11 +82,13 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
    name=dir;
    if(dir[0]=='_'){
        redactor(name, n);
+       dir_name=malloc(sizeof(char)*n);
+       strcpy(dir_name,name);
      if(log==0)
-        output(name, subwnd2);
+        output(dir_name, subwnd2);
      else
 
-        output(name, subwnd);
+        output(dir_name, subwnd);
    }
    else{
     if(c=='e'){
@@ -95,7 +98,6 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
    }
    c=wgetch(win);
    while(c!='q'){
-      chdir(parent);
       c=wgetch(win);
       if(c=='w'){
          wmove(win,--i,j);
@@ -108,28 +110,32 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
          i=0; j=0; log=1;
          wmove(win,i,j);
          free(parent);
-         parent=malloc(sizeof(name));
-         strcpy(parent,name);         
+         parent=malloc(sizeof(dir_name));
+         strcpy(parent,dir_name);
+         chdir(parent);
       }
       if(c=='a'){
          win=subwnd;
          i=0; j=0; log=0;
          wmove(win,i,j);
          free(parent);
-         parent=malloc(sizeof(name));
-         strcpy(parent,name);         
+         parent=malloc(sizeof(dir_name));
+         strcpy(parent,dir_name);
+         chdir(parent);
       }
       mvwinstr(win,i,j,dir);
       n=summa(dir);
-      //free(name);
       name=malloc(sizeof(char)*n);
       name=dir;
       if(dir[0]=='_'){
         redactor(name, n);
+       // free(dir_name);
+        dir_name=malloc(sizeof(name));
+        strcpy(dir_name,name);
         if(log==0)
-           output(name, subwnd2);
+           output(dir_name, subwnd2);
          else
-            output(name, subwnd);
+            output(dir_name, subwnd);
       }
       else{
          if(c=='e'){
