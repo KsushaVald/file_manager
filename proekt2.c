@@ -8,15 +8,24 @@
 #include <fcntl.h>
 #include <string.h>
 #include <malloc.h>
+
+void  sig_winch(int signo){
+  struct winsize size;
+  ioctl(fileno(stdout), TIOCGWINSZ, (char*)&size);
+  resizeterm(size.ws_row, size.ws_col);
+}
+
 void openfile(char *name, WINDOW*neww){
  int fd; char c;
- fd=open(name,O_RDONLY);
-  read(fd,&c,sizeof(char));
- while(c!=EOF){
-  waddch(neww,c);
-  read(fd,&c,sizeof(char));
+ fd=open(name,O_RDONLY,0666);
+ if(fd!=0){
+     read(fd,&c,sizeof(char));
+     while(c!=EOF){
+        waddch(neww,c);
+        read(fd,&c,sizeof(char));
+     }
+     wrefresh(neww);
  }
- wrefresh(neww);
  close(fd);
 }
 
@@ -25,11 +34,11 @@ void windowfile(char *name){
   initscr();
   cbreak();
   refresh();
+  noecho();
   neww=newwin(24,64,0,0);
   openfile(name, neww);
   wrefresh(neww);
   delwin(neww);
-  getch();
   endwin();
   exit(EXIT_SUCCESS);
 }
@@ -68,9 +77,9 @@ char redactor(char *name, int n){
 }
 
 void navigation(WINDOW *subwnd,WINDOW *subwnd2){
-   char c; int i=0, j=0, log=0, n;
+   char c='p'; int i=0, j=0, log=0, n;
    WINDOW *win=subwnd;
-   char dir[18]; char *name; char *parent; char *dir_name;
+   char dir[256]; char *name; char *parent; char *dir_name;
    parent=malloc(sizeof(char)*2);
    parent[0]='.';
    parent[1]='\0';
@@ -98,7 +107,7 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
      windowfile(name);
     }
    }
-   c=wgetch(win);
+ //  c=wgetch(win);
    while(c!='q'){
       c=wgetch(win);
       if(c=='w'){
@@ -157,6 +166,7 @@ int main(){
   WINDOW *wnd, *wnd2, *win;
   WINDOW *subwnd,*subwnd2;
   initscr();
+  signal(SIGWINCH, sig_winch);
   cbreak();
   refresh();
   noecho();
