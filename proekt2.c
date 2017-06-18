@@ -8,17 +8,17 @@
 #include <fcntl.h>
 #include <string.h>
 #include <malloc.h>
-/*void openfile(char *name, WINDOW*neww){
+void openfile(char *name, WINDOW*neww){
  int fd; char c;
  fd=open(name,O_RDONLY);
   read(fd,&c,sizeof(char));
  while(c!=EOF){
-  wprintw(neww,c);
+  waddch(neww,c);
   read(fd,&c,sizeof(char));
  }
  wrefresh(neww);
  close(fd);
-}*/
+}
 
 void windowfile(char *name){
   WINDOW *neww;
@@ -26,7 +26,7 @@ void windowfile(char *name){
   cbreak();
   refresh();
   neww=newwin(24,64,0,0);
- // openfile(name, neww);
+  openfile(name, neww);
   wrefresh(neww);
   delwin(neww);
   getch();
@@ -78,9 +78,9 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
    wmove(win,i,j);
    mvwinstr(win,i,j, dir);
    n=summa(dir);
-   name=malloc(sizeof(char)*n);
-   name=dir;
    if(dir[0]=='_'){
+       name=malloc(sizeof(char)*n);
+       name=dir;
        redactor(name, n);
        dir_name=malloc(sizeof(char)*n);
        strcpy(dir_name,name);
@@ -92,7 +92,9 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
    }
    else{
     if(c=='e'){
-     name[n-1]='\0';
+     name=malloc(sizeof(char)*(n+1));
+     name=dir;
+     name[n]='\0';
      windowfile(name);
     }
    }
@@ -125,11 +127,10 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
       }
       mvwinstr(win,i,j,dir);
       n=summa(dir);
-      name=malloc(sizeof(char)*n);
-      name=dir;
       if(dir[0]=='_'){
+        name=malloc(sizeof(char)*n);
+        name=dir;
         redactor(name, n);
-       // free(dir_name);
         dir_name=malloc(sizeof(name));
         strcpy(dir_name,name);
         if(log==0)
@@ -139,7 +140,9 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
       }
       else{
          if(c=='e'){
-           name[n-1]='\0';
+           name=malloc(sizeof(char)*(n+1));
+           name=dir;
+           name[n]='\0';
            windowfile(name);
        }
      }
