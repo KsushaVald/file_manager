@@ -14,19 +14,46 @@ void  sig_winch(int signo){
   ioctl(fileno(stdout), TIOCGWINSZ, (char*)&size);
   resizeterm(size.ws_row, size.ws_col);
 }
-
-void openfile(char *name, WINDOW*neww){
- int fd; char c;
- fd=open(name,O_RDONLY,0666);
- if(fd!=0){
-     read(fd,&c,sizeof(char));
-     while(c!=EOF){
-        waddch(neww,c);
-        read(fd,&c,sizeof(char));
-     }
-     wrefresh(neww);
+void fileredactor(WINDOW*neww, int i, int j){
+char c;
+ c=wgetch(neww);
+ while(c!=KEY_ENTER){
+  mvwaddch(neww,i,j,c);
+  wmove(neww,i,j++);
+  c=wgetch(neww);
  }
- close(fd);
+}
+void openfile(char *name, WINDOW*neww){
+ FILE* fd; char c; int n=0; char *stroka;
+ fd=fopen(name,"r");
+     fread(&c,1,1,fd);
+     while(!feof(fd)){
+        waddch(neww,c);
+        fread(&c,1,1,fd);
+        n++;
+     }
+  fclose(fd);
+  wrefresh(neww);
+  c='0'; int i=0, j=0;
+  wmove(neww,i,j);
+  while(c!='q'){
+  c=wgetch(neww);
+  if(c=='w')
+    wmove(neww,--i,j);
+  if(c=='s')
+    wmove(neww,++i,j);
+  if(c=='d')
+    wmove(neww,i,++j);
+  if(c=='a')
+    wmove(neww,i,--j);
+  if(c=='e')
+     fileredactor(neww, i, j);
+ }
+ i=0; j=0;
+ stroka=malloc(n*sizeof(char));
+ mvwinstr(neww,i,j, stroka);
+ fd=fopen(name,"w");
+ fwrite(stroka,n*sizeof(char),1,fd);
 }
 
 void windowfile(char *name){
@@ -36,6 +63,8 @@ void windowfile(char *name){
   refresh();
   noecho();
   neww=newwin(24,64,0,0);
+  idlok(neww, TRUE);
+  scrollok(neww, TRUE); 
   openfile(name, neww);
   wrefresh(neww);
   delwin(neww);
@@ -48,13 +77,15 @@ void output(char *name, WINDOW*win){
    dp=opendir(name);
    struct dirent *rez;
    wclear(win);
-   while((rez=readdir(dp))!=NULL){
+   if(dp!=NULL){
+     while((rez=readdir(dp))!=NULL){
       if(rez->d_type==DT_DIR)
         wprintw(win,"_");
         wprintw(win,rez->d_name);
         wprintw(win,"|");
         wprintw(win,"\n");
-   }
+     }
+    }
    wrefresh(win);
    closedir(dp);
 }
@@ -182,6 +213,8 @@ int main(){
   wrefresh(wnd2);
   wrefresh(subwnd2);
   refresh();
+  scrollok(subwnd, TRUE);
+  scrollok(subwnd2, TRUE);
   navigation(subwnd, subwnd2);
   delwin(subwnd);
   delwin(subwnd2);
