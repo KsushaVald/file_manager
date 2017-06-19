@@ -17,14 +17,14 @@ void  sig_winch(int signo){
 void fileredactor(WINDOW*neww, int i, int j){
 char c;
  c=wgetch(neww);
- while(c!=KEY_ENTER){
+ while(c!='1'){
   mvwaddch(neww,i,j,c);
   wmove(neww,i,j++);
   c=wgetch(neww);
  }
 }
 void openfile(char *name, WINDOW*neww){
- FILE* fd; char c; int n=0; char *stroka;
+ FILE* fd; char c; int n=0; char *s;
  fd=fopen(name,"r");
      fread(&c,1,1,fd);
      while(!feof(fd)){
@@ -37,23 +37,22 @@ void openfile(char *name, WINDOW*neww){
   c='0'; int i=0, j=0;
   wmove(neww,i,j);
   while(c!='q'){
-  c=wgetch(neww);
-  if(c=='w')
-    wmove(neww,--i,j);
-  if(c=='s')
-    wmove(neww,++i,j);
-  if(c=='d')
-    wmove(neww,i,++j);
-  if(c=='a')
-    wmove(neww,i,--j);
-  if(c=='e')
-     fileredactor(neww, i, j);
- }
+    c=wgetch(neww);
+    if(c=='w')
+       wmove(neww,--i,j);
+    if(c=='s')
+       wmove(neww,++i,j);
+    if(c=='d')
+        wmove(neww,i,++j);
+    if(c=='a')
+        wmove(neww,i,--j);
+    if(c=='e')
+        fileredactor(neww, i, j);
+  }
  i=0; j=0;
- stroka=malloc(n*sizeof(char));
- mvwinstr(neww,i,j, stroka);
  fd=fopen(name,"w");
- fwrite(stroka,n*sizeof(char),1,fd);
+ mvwinstr(neww,i,j,s);
+ fwrite(s,sizeof(s),1,fd);
 }
 
 void windowfile(char *name){
@@ -63,8 +62,7 @@ void windowfile(char *name){
   refresh();
   noecho();
   neww=newwin(24,64,0,0);
-  idlok(neww, TRUE);
-  scrollok(neww, TRUE); 
+  scrollok(neww, TRUE);
   openfile(name, neww);
   wrefresh(neww);
   delwin(neww);
@@ -138,7 +136,6 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
      windowfile(name);
     }
    }
- //  c=wgetch(win);
    while(c!='q'){
       c=wgetch(win);
       if(c=='w'){
