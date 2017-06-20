@@ -81,7 +81,7 @@ j=0; c='\n';
 
 }
 
-void windowfile(char *name){
+void windowfile(char *name, char *parent){
   WINDOW *neww; WINDOW *subwnd, *subwnd2,*wnd,*wnd2;
   initscr();
   cbreak();
@@ -90,10 +90,15 @@ void windowfile(char *name){
   neww=newwin(24,64,0,0);
   scrollok(neww, TRUE);
   openfile(name, neww);
+  wclear(neww);
   wrefresh(neww);
   delwin(neww);
   endwin();
-  exit(EXIT_SUCCESS);
+  wnd=window1(20,30,1,1);
+  subwnd=window2(wnd,16,18,1,1);
+  wnd2=window1(20,30,1,32);
+  subwnd2=window2(wnd2,16,18,1,1);
+  output(parent,subwnd);
 }
 
 void output(char *name, WINDOW*win){
@@ -197,12 +202,7 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
            name=malloc(sizeof(char)*(n+1));
            name=dir;
            name[n]='\0';
-           windowfile(name);
-           wnd=window1(20,30,1,1);
-           subwnd=window2(wnd,16,18,1,1);
-           wnd2=window1(20,30,1,32);
-           subwnd2=window2(wnd2,16,18,1,1);
-           output(parent,subwnd);
+           windowfile(name, parent);
       }
     }
   }
