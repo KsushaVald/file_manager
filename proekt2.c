@@ -24,7 +24,7 @@ char c;
  }
 }
 void openfile(char *name, WINDOW*neww){
- FILE* fd; char c; int n=0; char *s;
+ FILE* fd; char c; int n=0; char stroka[64];
  fd=fopen(name,"r");
      fread(&c,1,1,fd);
      while(!feof(fd)){
@@ -49,10 +49,15 @@ void openfile(char *name, WINDOW*neww){
     if(c=='e')
         fileredactor(neww, i, j);
   }
- i=0; j=0;
- fd=fopen(name,"w");
- mvwinstr(neww,i,j,s);
- fwrite(s,sizeof(s),1,fd);
+j=0; c='\n';
+    fd=fopen(name,"w");
+ for(i=0; i<24; i++){
+    mvwinstr(neww,i,j, stroka);
+    fwrite(stroka,sizeof(char)*64,1,fd);
+    fwrite(&c,sizeof(char),1,fd);
+ }
+ fclose(fd);
+
 }
 
 void windowfile(char *name){
