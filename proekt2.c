@@ -11,10 +11,6 @@
 
 WINDOW* window1(int y, int x, int py, int px){
   WINDOW* wnd;
-  initscr();
-  cbreak();
-  refresh();
-  noecho();
   wnd=newwin(y,x,py,px);
   box(wnd, '|','-' );
   wrefresh(wnd);
@@ -70,7 +66,7 @@ void openfile(char *name, WINDOW*neww){
     if(c=='e')
         fileredactor(neww, i, j);
   }
-j=0; c='\n';
+    j=0; c='\n';
     fd=fopen(name,"w");
  for(i=0; i<24; i++){
     mvwinstr(neww,i,j, stroka);
@@ -83,17 +79,12 @@ j=0; c='\n';
 
 void windowfile(char *name, char *parent){
   WINDOW *neww;
-  initscr();
-  cbreak();
-  refresh();
-  noecho();
   neww=newwin(24,64,0,0);
   scrollok(neww, TRUE);
   openfile(name, neww);
   wclear(neww);
   wrefresh(neww);
   delwin(neww);
-  endwin();
 }
 
 void output(char *name, WINDOW*win){
@@ -197,16 +188,20 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
            name=malloc(sizeof(char)*(n+1));
            name=dir;
            name[n]='\0';
+           delwin(wnd);
+           delwin(subwnd);
+           delwin(wnd2);
+           delwin(subwnd2);
            windowfile(name, parent);
            wnd=window1(20,30,1,1);
-         //  subwnd=window2(wnd,16,18,1,1);
+           subwnd=window2(wnd,16,18,1,1);
            wnd2=window1(20,30,1,32);
-          // subwnd2=window2(wnd2,16,18,1,1);
-            wrefresh(wnd);
-            wrefresh(wnd2);
-            wrefresh(subwnd);
-            wrefresh(subwnd2);
-         //  output(parent,subwnd);
+           subwnd2=window2(wnd2,16,18,1,1);
+           output(parent,subwnd);
+           wrefresh(wnd);
+           wrefresh(wnd2);
+           wrefresh(subwnd);
+           wrefresh(subwnd2);
       }
     }
   }
@@ -219,6 +214,10 @@ int i,j;
   name[1]='\0';
   WINDOW *wnd, *wnd2, *win;
   WINDOW *subwnd,*subwnd2;
+  initscr();
+  cbreak();
+  refresh();
+  noecho();
   wnd=window1(20,30,1,1);
   subwnd=window2(wnd, 16,18,1,1);
   wnd2=window1(20,30,1,32);
