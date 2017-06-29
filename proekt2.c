@@ -8,6 +8,9 @@
 #include <fcntl.h>
 #include <string.h>
 #include <malloc.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 WINDOW* window1(int y, int x, int py, int px){
     WINDOW* wnd;
     wnd=newwin(y,x,py,px);
@@ -172,6 +175,50 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
              wrefresh(wnd2);
              wrefresh(subwnd);
              wrefresh(subwnd2);
+         }
+         if(c=='r'){
+             pid_t  pid;
+             name=malloc(sizeof(char)*(n+1));
+             name=dir;
+             name[n]='\0';
+             delwin(wnd);
+             delwin(subwnd);
+             delwin(wnd2);
+             delwin(subwnd2);
+             wnd=window1(20,61,1,1);
+             subwnd=window2(wnd,16,30,1,1);
+             wrefresh(wnd);
+             wrefresh(subwnd);
+             pid=fork();
+             if(pid==0){
+                 execl(name,name, NULL);
+             }
+             else
+                 wait(0);
+             wgetch(subwnd);
+             wclear(subwnd);
+             wclear(wnd);
+             wrefresh(wnd);
+             wrefresh(subwnd);
+             delwin(wnd);
+             delwin(subwnd);
+             wnd=window1(20,30,1,1);
+             subwnd=window2(wnd,16,18,1,1);
+             wnd2=window1(20,30,1,32);
+             subwnd2=window2(wnd2,16,18,1,1);
+             win=subwnd; log=0; i=0; j=0;
+             output(".",win);
+             free(parent);
+             parent=malloc(sizeof(char)*2);
+             parent[0]='.';
+             parent[1]='\0';
+             chdir(parent);
+             wmove(win,i,j);
+             wrefresh(wnd);
+             wrefresh(wnd2);
+             wrefresh(subwnd);
+             wrefresh(subwnd2);
+
          }
          mvwinstr(win,i,j, dir);
          n=summa(dir);
