@@ -10,6 +10,13 @@
 #include <malloc.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <pthread.h>
+
+void copy(char* name, char* str){
+    FILE *f1, *f2;
+    f1=fopen(name,"r");
+    f2=fopen();
+}
 
 WINDOW* window1(int y, int x, int py, int px){
     WINDOW* wnd;
@@ -198,6 +205,41 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
              wgetch(subwnd);
              wclear(subwnd);
              wclear(wnd);
+             wrefresh(wnd);
+             wrefresh(subwnd);
+             delwin(wnd);
+             delwin(subwnd);
+             wnd=window1(20,30,1,1);
+             subwnd=window2(wnd,16,18,1,1);
+             wnd2=window1(20,30,1,32);
+             subwnd2=window2(wnd2,16,18,1,1);
+             win=subwnd; log=0; i=0; j=0;
+             output(".",win);
+             free(parent);
+             parent=malloc(sizeof(char)*2);
+             parent[0]='.';
+             parent[1]='\0';
+             chdir(parent);
+             wmove(win,i,j);
+             wrefresh(wnd);
+             wrefresh(wnd2);
+             wrefresh(subwnd);
+             wrefresh(subwnd2);
+
+         }
+         if(c=='c'){
+             char str[200]; pthread_t tid1, tid2;
+             delwin(wnd);
+             delwin(subwnd);
+             delwin(wnd2);
+             delwin(subwnd2);
+             wnd=window1(20,61,1,1);
+             subwnd=window2(wnd,16,30,1,1);
+             wprintw(subwnd,"Where to copy?");
+             echo();
+             wmove(subwnd,3,0);
+             wgetstr(subwnd,str);
+             copy(name, str);
              wrefresh(wnd);
              wrefresh(subwnd);
              delwin(wnd);
