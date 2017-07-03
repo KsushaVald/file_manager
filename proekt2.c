@@ -12,10 +12,24 @@
 #include <unistd.h>
 #include <pthread.h>
 
+off_t size_file(char *name){
+    struct stat buff;
+    off_t  one;
+    stat(name, &buff);
+    one=buff.st_size/100;
+    return(one);
+}
 void copy(char* name, char* str){
-    FILE *f1, *f2;
+    FILE *f1, *f2; char c; off_t pr;
     f1=fopen(name,"r");
-    f2=fopen();
+    f2=fopen(str,"w");
+    pr=size_file(name);
+    while(!feof(f1)){
+        fread(&c,1,pr,f1);
+        fwrite(&c,1,pr,f2);
+    }
+  fclose(f1);
+  fclose(f2);
 }
 
 WINDOW* window1(int y, int x, int py, int px){
@@ -228,7 +242,10 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
 
          }
          if(c=='c'){
-             char str[200]; pthread_t tid1, tid2;
+             char str[256]; pthread_t tid1, tid2;
+             name=malloc(sizeof(char)*(n+1));
+             name=dir;
+             name[n]='\0';
              delwin(wnd);
              delwin(subwnd);
              delwin(wnd2);
@@ -239,6 +256,7 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
              echo();
              wmove(subwnd,3,0);
              wgetstr(subwnd,str);
+             strcat(str,name);
              copy(name, str);
              wrefresh(wnd);
              wrefresh(subwnd);
