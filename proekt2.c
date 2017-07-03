@@ -12,15 +12,15 @@
 #include <unistd.h>
 #include <pthread.h>
 
-off_t size_file(char *name){
+int size_file(char *name){
     struct stat buff;
-    off_t  one;
+    int  one;
     stat(name, &buff);
     one=buff.st_size/100;
     return(one);
 }
 void copy(char* name, char* str){
-    FILE *f1, *f2; char c; off_t pr;
+    FILE *f1, *f2; char c; int  pr;
     f1=fopen(name,"r");
     f2=fopen(str,"w");
     pr=size_file(name);
@@ -52,6 +52,34 @@ void sig_winch(int signo){
     ioctl(fileno(stdout), TIOCGWINSZ, (char*)&size);
     resizeterm(size.ws_row, size.ws_col);
 }
+
+void copy_move(char *name){
+ float pr, n=0; int i=0, j=0;
+ pr=48/100;
+ //start_color();
+ noecho();
+ WINDOW *wnd, *subwnd;
+ wnd=window1(3,50,10,10);
+ subwnd=window2(wnd,1,48,1,1);
+// wbkgd(subwnd, COLOR_PAIR(0));
+ wmove(subwnd,i,j);
+ while(n!=48){
+    n++;
+     wprintw(subwnd,"*");
+     wrefresh(subwnd);
+ }
+ wrefresh(wnd);
+ wrefresh(subwnd);
+ wgetch(subwnd);
+ wclear(subwnd);
+ wclear(wnd);
+ wrefresh(wnd);
+ wrefresh(subwnd);
+ delwin(wnd);
+ delwin(subwnd);
+ endwin();
+}
+
 void fileredactor(WINDOW*neww, int i, int j){
     char c;
     c=wgetch(neww);
@@ -256,8 +284,10 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
              echo();
              wmove(subwnd,3,0);
              wgetstr(subwnd,str);
+             noecho();
              strcat(str,name);
-             copy(name, str);
+            // copy(name, str);
+             copy_move(name);
              wrefresh(wnd);
              wrefresh(subwnd);
              delwin(wnd);
