@@ -12,24 +12,17 @@
 #include <unistd.h>
 #include <pthread.h>
 
+struct for_copy{
+  char str[256];
+  char name[256];
+};
+
 int size_file(char *name){
     struct stat buff;
     int  one;
     stat(name, &buff);
-    one=buff.st_size/100;
+    one=buff.st_size;
     return(one);
-}
-void copy(char* name, char* str){
-    FILE *f1, *f2; char c; int  pr;
-    f1=fopen(name,"r");
-    f2=fopen(str,"w");
-    pr=size_file(name);
-    while(!feof(f1)){
-        fread(&c,1,pr,f1);
-        fwrite(&c,1,pr,f2);
-    }
-  fclose(f1);
-  fclose(f2);
 }
 
 WINDOW* window1(int y, int x, int py, int px){
@@ -54,30 +47,36 @@ void sig_winch(int signo){
 }
 
 void copy_move(char *name){
- float pr, n=0; int i=0, j=0;
- pr=48/100;
- //start_color();
- noecho();
- WINDOW *wnd, *subwnd;
- wnd=window1(3,50,10,10);
- subwnd=window2(wnd,1,48,1,1);
-// wbkgd(subwnd, COLOR_PAIR(0));
- wmove(subwnd,i,j);
- while(n!=48){
-    n++;
-     wprintw(subwnd,"*");
-     wrefresh(subwnd);
- }
- wrefresh(wnd);
- wrefresh(subwnd);
- wgetch(subwnd);
- wclear(subwnd);
- wclear(wnd);
- wrefresh(wnd);
- wrefresh(subwnd);
- delwin(wnd);
- delwin(subwnd);
- endwin();
+    double  pr, n=0; int  i=0, j=0;
+    pr=1000/((double)size_file(name));
+    WINDOW *wnd, *subwnd;
+    wnd=window1(3,50,10,10);
+    subwnd=window2(wnd,1,48,1,1);
+    while(n<100){
+        n=n+pr;
+        if(n>100)
+             n=100;
+        mvwprintw(subwnd,0,23,"%.1f",n);
+        wrefresh(subwnd);
+    }
+    wrefresh(wnd);
+    wrefresh(subwnd);
+   // wgetch(subwnd);
+    delwin(wnd);
+    delwin(subwnd);
+    endwin();
+}
+
+void copy(struct for_copy *str){
+    int f1, f2; char c[10]; int pr;
+    f1=open(str->name,O_RDONLY);
+    f2=open(str->str, O_WRONLY|O_CREAT,0666);
+    while((pr=read(f1,c, sizeof(char)*10))!=NULL){
+        write(f2,c, pr);//sizeof(char)*10);
+       // read(f1,c, sizeof(char)*10);
+    }
+   close(f1);
+   close(f2);
 }
 
 void fileredactor(WINDOW*neww, int i, int j){
@@ -270,7 +269,7 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
 
          }
          if(c=='c'){
-             char str[256]; pthread_t tid1, tid2;
+             struct for_copy stroka; pthread_t tid1, tid2;
              name=malloc(sizeof(char)*(n+1));
              name=dir;
              name[n]='\0';
@@ -283,11 +282,14 @@ void navigation(WINDOW *subwnd,WINDOW *subwnd2){
              wprintw(subwnd,"Where to copy?");
              echo();
              wmove(subwnd,3,0);
-             wgetstr(subwnd,str);
+             wgetstr(subwnd,stroka.str);
              noecho();
-             strcat(str,name);
-            // copy(name, str);
-             copy_move(name);
+             strcat(stroka.str,name);
+             strcpy(stroka.name,name);
+             pthread_create(&tid1,NULL,copy,&stroka);
+             pthread_create(&tid2, NULL, copy_move,&stroka.name);
+             pthread_join(tid1,NULL);
+             pthread_join(tid2,NULL);
              wrefresh(wnd);
              wrefresh(subwnd);
              delwin(wnd);
